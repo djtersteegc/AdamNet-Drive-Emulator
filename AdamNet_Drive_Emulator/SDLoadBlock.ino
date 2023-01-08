@@ -23,6 +23,7 @@ int SDLoadBlock(unsigned long blocknumber, byte devicenumber){     // Load block
   Serial.print(devicenumber - 3);
   Serial.print(F(": Reading: "));
   Serial.println(blocknumber);
+#ifndef PRO_MINI_OLED_BOARD //OLED is to slow for debug text, screws up timings  
   if (DebugMode){
     DebugText = "Reading:";
     DebugText = DebugText + blocknumber;
@@ -32,6 +33,7 @@ int SDLoadBlock(unsigned long blocknumber, byte devicenumber){     // Load block
     lcd.print(DebugText);
     LCDTopDelay = LCDDelay;
   }
+#endif  
   BlockBuffer[devicenumber-4][0] = 0xB0 + devicenumber;
   BlockBuffer[devicenumber-4][1] = 0x04;
   BlockBuffer[devicenumber-4][2] = 0x00;

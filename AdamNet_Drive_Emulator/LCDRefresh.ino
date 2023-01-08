@@ -1,6 +1,12 @@
 void LCDRefresh(){                                                 // Refresh the LCD Display
   String temptext = "";
   byte LCDLength;
+  //Move updating the LCD from a SDCommand to here since the OLED screen is to slow and throws off the timing inside the command block
+  if (LCDWriteCommandNeeded) {
+    lcd.draw1x2String(0,0, LCDCommandTopText);
+    lcd.draw1x2String(0,2, LCDCommandBottomText);
+    LCDWriteCommandNeeded = false;
+  }
   if (LCDScrollOn && LCDTopDelay == 0){
     LCDScroll();                           // Scroll the bottom line of the LCD
   }
@@ -13,6 +19,12 @@ void LCDRefresh(){                                                 // Refresh th
       temptext = EepromStringRead((DeviceDisplayed * 400) + 5);
       temptext = String("D") + (DeviceDisplayed - 3) + String(":") + temptext;
     }
+#ifdef PRO_MINI_OLED_BOARD
+    lcd.draw1x2String(0,0, temptext.substring(0, 16).c_str());
+    for (int i = temptext.length(); i<16; i++) {
+      lcd.draw1x2String(i,0, " ");
+    }
+#else    
     lcd.setCursor(0,0);
     LCDLength = temptext.length();
     if (LCDLength > 16){
@@ -24,6 +36,7 @@ void LCDRefresh(){                                                 // Refresh th
     for (int i = LCDLength; i <= 15; i++) {
       lcd.print(" ");
     }
+#endif
     LCDTopDelay = 0;
   }
   else if(LCDTopDelay > 0){
@@ -32,6 +45,12 @@ void LCDRefresh(){                                                 // Refresh th
   if (LCDBottomDelay == 1){
     sd.chdir(CurrentDirectory.c_str(),true);
     LCDBottomText  = GetFileName(CurrentFile,LCDNameLength);
+#ifdef PRO_MINI_OLED_BOARD
+    lcd.draw1x2String(0,2, LCDBottomText.substring(0, 16).c_str());
+    for (int i = LCDBottomText.length(); i<16; i++) {
+      lcd.draw1x2String(i,2, " ");
+    }    
+#else    
     lcd.setCursor(0,1);
     LCDLength = LCDBottomText.length();
     if (LCDLength > 16){
@@ -43,6 +62,7 @@ void LCDRefresh(){                                                 // Refresh th
     for (int i = LCDLength; i <= 16; i++) {
       lcd.print(" ");
     }
+#endif
     CurrentLCDDelay = LCDScrollDelayStart;
     LCDScrollLocation = 0;
     LastScrollLCD = millis();

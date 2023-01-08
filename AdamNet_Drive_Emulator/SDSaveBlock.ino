@@ -23,6 +23,7 @@ int SDSaveBlock(unsigned long blocknumber, byte devicenumber){     // Save the b
   Serial.println(blocknumber);
   unsigned long blocklocation = blocknumber*0x00000400;
   if (blocklocation < sizeoffile){
+#ifndef PRO_MINI_OLED_BOARD //OLED is to slow for debug text, screws up timings    
     if (DebugMode){
       DebugText = "Writing:";
       DebugText = DebugText + blocknumber;
@@ -32,6 +33,7 @@ int SDSaveBlock(unsigned long blocknumber, byte devicenumber){     // Save the b
       lcd.print(DebugText);
       LCDTopDelay = LCDDelay;
     }
+#endif
     file.seekSet(blocklocation);
     if ((filetype == 10) || (filetype == 22) || (filetype == 23) || (filetype == 24)){ // Is this a DSK, DS2, DS3 or DS4?
       for (int i=3; i<=514;i++){

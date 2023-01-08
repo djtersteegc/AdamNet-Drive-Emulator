@@ -12,7 +12,10 @@ void LCDScroll(){                                                  // Scroll the
       LCDScrollLocation++;
       LCDDisplay = LCDBottomText.substring(LCDScrollLocation, LCDScrollLocation+16);
       CurrentLCDDelay = LCDScrollDelay;
-    } 
+    }
+#ifdef PRO_MINI_OLED_BOARD
+    lcd.draw1x2String(0,2, LCDDisplay.c_str());
+#else
     lcd.setCursor(0,1); 
     byte LCDLength = LCDDisplay.length();
     for (int i = 0; i < LCDLength; i++) {
@@ -22,6 +25,7 @@ void LCDScroll(){                                                  // Scroll the
     for (int i = LCDLength; i <= 16; i++) {
       lcd.print(" ");
     }
+#endif
     LastScrollLCD = millis();
   }
 }

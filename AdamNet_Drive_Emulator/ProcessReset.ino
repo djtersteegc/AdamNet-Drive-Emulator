@@ -1,10 +1,10 @@
 void ProcessReset(){                                               // Process a Reset on AdamNet
   unsigned long TimeSinceReset = 0;
   String DebugText;
-  while (((PIND & _BV(PD2)) == 1) && (TimeSinceReset <= 175)){ // Wait for PD2 to go LOW
+  while (((RX_PORT) == 1) && (TimeSinceReset <= 175)){ // Wait for AdamNetRx to go LOW
     TimeSinceReset = millis() - TimetoByte; // Calculate the time since the reset
   }
-  while (((PIND & _BV(PD2)) == 0) && (TimeSinceReset <= 175)){ // Wait for PD2 to go HIGH, this is the start of the first byte since reset
+  while (((RX_PORT) == 0) && (TimeSinceReset <= 175)){ // Wait for AdamNetRx to go HIGH, this is the start of the first byte since reset
     TimeSinceReset = millis() - TimetoByte; // Calculate the time since the reset
   }
   if (TimeSinceReset <= 5){
@@ -43,9 +43,10 @@ void ProcessReset(){                                               // Process a 
  //  DebugText = "Adam Off: ";
  //  Serial.println(F("Adam Powered Off"));
  // }
+#ifndef PRO_MINI_OLED_BOARD //OLED is to slow for debug text, screws up timings   
   if ((DebugMode) && (DebugText != "")){
     DebugText = DebugText + TimeSinceReset;
-    lcd.clear();
+    lcd.clear();          
     lcd.setCursor(0,1);
     lcd.print(DebugText);
     LCDTopDelay = 1;
@@ -55,5 +56,6 @@ void ProcessReset(){                                               // Process a 
     LCDTopDelay = 1;
     LCDBottomDelay = 1;
   }
-  LCDScrollOn = true; 
+#endif  
+  LCDScrollOn = true;
 }

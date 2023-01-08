@@ -11,6 +11,7 @@ void SDCommand(byte devicenumber){                                 // Process a 
   Serial.print(data2,HEX);
   Serial.print(F(" : "));
   Serial.println(data3,HEX);
+#ifndef PRO_MINI_OLED_BOARD //OLED is to slow for debug text, screws up timings  
   if (DebugMode){
     lcd.clear();
     lcd.setCursor(0,1);
@@ -24,6 +25,7 @@ void SDCommand(byte devicenumber){                                 // Process a 
     lcd.print(data3,HEX);
     LCDBottomDelay = LCDDelay;
   }
+#endif
   if (commandin == 0xF1){                       // READ - Return the SD Card Current Directory
     CurrentDirectoryReturn(devicenumber);
   }
@@ -277,19 +279,23 @@ void  WritetoLCD(byte devicenumber){           // Command 0xF4
   }
   else{
     Serial.println(F("Adam Command: Writing to the LCD :"));
-    lcd.clear();
-    lcd.setCursor(0,0);
+    //Move updating the LCD to the next LCDRefresh since the OLED screen is to slow and throws off the timing inside the command block
+    LCDWriteCommandNeeded = true;
+    
     for(int i =3; i<=18; i++){
-      lcd.write(BlockBuffer[devicenumber-4][i]);
       Serial.write(BlockBuffer[devicenumber-4][i]);
+      LCDCommandTopText[i-3] = BlockBuffer[devicenumber-4][i];
     }
+    LCDCommandTopText[16] = '\0'; 
     Serial.println();
-    lcd.setCursor(0,1);
+
     for(int i =19; i<=34; i++){
-      lcd.write(BlockBuffer[devicenumber-4][i]);
       Serial.write(BlockBuffer[devicenumber-4][i]);
+      LCDCommandBottomText[i-19] = BlockBuffer[devicenumber-4][i];
     }
+    LCDCommandBottomText[16] = '\0'; 
     Serial.println();
+    
     LCDScrollOn = false;                 // Turn off the LCD scroll until a key is pressed.
   }  
 }

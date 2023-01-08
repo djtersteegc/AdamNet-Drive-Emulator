@@ -68,10 +68,15 @@ void SDCardGetDir(int DisplayError){                               // Setup the 
       Serial.println(F("Warning: Maximum Number of Files Reached"));
       TooMany = 1;
       if (DisplayError == 1){
+#ifdef PRO_MINI_OLED_BOARD
+        lcd.draw1x2String(0,0, String(F("    Too Many    ")).c_str());
+        lcd.draw1x2String(0,2, String(F("     Files      ")).c_str());
+#else         
         lcd.setCursor(0,0);
         lcd.print(F("    Too Many    "));
         lcd.setCursor(0,1);
         lcd.print(F("     Files      "));
+#endif
         LCDBottomDelay = LCDDelay;
         LCDTopDelay = LCDDelay;
       }

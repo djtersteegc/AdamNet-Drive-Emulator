@@ -63,10 +63,15 @@ void DeviceSetup(){                                                // Initialize
   }
   if (numberofdrives == 0){                // No Drives have been turned on
     lcd.clear();
+#ifdef PRO_MINI_OLED_BOARD
+    lcd.draw1x2String(0,0, String(F("No Drives")).c_str());
+    lcd.draw1x2String(0,2, String(F("Enabled")).c_str());
+#else         
     lcd.setCursor(0,0);
     lcd.print(F("No Drives"));
     lcd.setCursor(0,1);
     lcd.print(F("Enabled"));
+#endif    
     while(1){}                             // Program will die here. Re-run config mode and turn on a drive.
   }
   DeviceDisplayed = EEPROM.read(3);        // Load in the last device that was displayed

@@ -26,6 +26,12 @@ void ProcessKeys(){                                                // Process a 
        Serial.print(F("Changing to Directory: "));
        Serial.println(CurrentDirectory);
        sd.chdir(CurrentDirectory.c_str(),true);
+#ifdef PRO_MINI_OLED_BOARD
+       lcd.draw1x2String(0,0, String(F("                ")).c_str());
+       lcd.draw1x2String(0,0, CurrentDirectory.substring(0, 16).c_str());
+       LCDTopDelay = LCDDelay;
+       lcd.draw1x2String(0,2, String(F("Loading Dir...  ")).c_str());
+#else       
        lcd.setCursor(0,0);
        lcd.print(F("                "));
        lcd.setCursor(0,0);
@@ -33,6 +39,7 @@ void ProcessKeys(){                                                // Process a 
        LCDTopDelay = LCDDelay;
        lcd.setCursor(0,1);
        lcd.print(F("Loading Dir...  "));
+#endif
        SDCardGetDir(1);
        CurrentFile = 1;
        LCDBottomDelay = 1;
@@ -50,6 +57,12 @@ void ProcessKeys(){                                                // Process a 
       Serial.print(F("Changing to Directory: "));
       Serial.println(CurrentDirectory);
       sd.chdir(CurrentDirectory.c_str(),true);
+#ifdef PRO_MINI_OLED_BOARD
+      lcd.draw1x2String(0,0, String(F("                ")).c_str());
+      lcd.draw1x2String(0,0, CurrentDirectory.substring(0, 16).c_str());
+      LCDTopDelay = LCDDelay;
+      lcd.draw1x2String(0,2, String(F("Loading Dir...  ")).c_str());
+#else         
       lcd.setCursor(0,0);
       lcd.print(F("                "));
       lcd.setCursor(0,0);
@@ -57,6 +70,7 @@ void ProcessKeys(){                                                // Process a 
       LCDTopDelay = LCDDelay;
       lcd.setCursor(0,1);
       lcd.print(F("Loading Dir...  "));
+#endif
       SDCardGetDir(1);
       SetCurrentFile();
       LCDBottomDelay = 1;
@@ -72,6 +86,12 @@ void ProcessKeys(){                                                // Process a 
       Serial.print(F("Changing to Directory: "));
       Serial.println(CurrentDirectory);
       sd.chdir(CurrentDirectory.c_str(),true);
+#ifdef PRO_MINI_OLED_BOARD
+      lcd.draw1x2String(0,0, String(F("                ")).c_str());
+      lcd.draw1x2String(0,0, CurrentDirectory.substring(0, 16).c_str());
+      LCDTopDelay = LCDDelay;
+      lcd.draw1x2String(0,2, String(F("Loading Dir...  ")).c_str());
+#else       
       lcd.setCursor(0,0);
       lcd.print(F("                "));
       lcd.setCursor(0,0);
@@ -79,6 +99,7 @@ void ProcessKeys(){                                                // Process a 
       LCDTopDelay = LCDDelay;
       lcd.setCursor(0,1);
       lcd.print(F("Loading Dir...  "));
+#endif      
       SDCardGetDir(1);
       SetCurrentFile();
       LCDBottomDelay = 1;
@@ -131,6 +152,12 @@ void ProcessKeys(){                                                // Process a 
     Serial.print(F("Changing to Directory: "));
     Serial.println(CurrentDirectory);
     sd.chdir(CurrentDirectory.c_str(),true);
+#ifdef PRO_MINI_OLED_BOARD
+    lcd.draw1x2String(0,0, String(F("                ")).c_str());
+    lcd.draw1x2String(0,0, CurrentDirectory.substring(0, 16).c_str());
+    LCDTopDelay = LCDDelay;
+    lcd.draw1x2String(0,2, String(F("Loading Dir...  ")).c_str());
+#else    
     lcd.setCursor(0,0);
     lcd.print(F("                "));
     lcd.setCursor(0,0);
@@ -138,6 +165,7 @@ void ProcessKeys(){                                                // Process a 
     LCDTopDelay = LCDDelay;
     lcd.setCursor(0,1);
     lcd.print(F("Loading Dir...  "));
+#endif      
     SDCardGetDir(1);
     SetCurrentFile();
     LCDBottomDelay = 1;
@@ -147,6 +175,12 @@ void ProcessKeys(){                                                // Process a 
     Serial.print(F("Changing to Directory: "));
     Serial.println(CurrentDirectory);
     sd.chdir(CurrentDirectory.c_str(),true);
+#ifdef PRO_MINI_OLED_BOARD
+    lcd.draw1x2String(0,0, String(F("                ")).c_str());
+    lcd.draw1x2String(0,0, CurrentDirectory.substring(0, 16).c_str());
+    LCDTopDelay = LCDDelay;
+    lcd.draw1x2String(0,2, String(F("Loading Dir...  ")).c_str());
+#else      
     lcd.setCursor(0,0);
     lcd.print(F("                "));
     lcd.setCursor(0,0);
@@ -154,6 +188,7 @@ void ProcessKeys(){                                                // Process a 
     LCDTopDelay = LCDDelay;
     lcd.setCursor(0,1);
     lcd.print(F("Loading Dir...  "));
+#endif    
     SDCardGetDir(1);
     SetCurrentFile();
     LCDBottomDelay = 1;
@@ -223,19 +258,31 @@ void ProcessKeys(){                                                // Process a 
   else if (ButtonPressed == 95){           // Select (Long)-->  Disable/enable boot disk)
     if ((BootDiskEnabled == 1) && (BootDiskExists == 1)){
       BootDiskEnabled = 0;
+#ifdef PRO_MINI_OLED_BOARD
+      lcd.draw1x2String(0,0, String(F("AutoMnt Boot Off")).c_str());
+#else      
       lcd.setCursor(0,0);
       lcd.print(F("AutoMnt Boot Off"));
+#endif  
       Serial.println(F("AutoMount Boot off"));
     }
     else if ((BootDiskEnabled == 0) && (BootDiskExists == 1)){
       BootDiskEnabled = 1;
+#ifdef PRO_MINI_OLED_BOARD
+      lcd.draw1x2String(0,0, String(F("AutoMnt Boot On ")).c_str());
+#else       
       lcd.setCursor(0,0);
       lcd.print(F("AutoMnt Boot On "));
+#endif      
       Serial.println(F("AutoMount Boot On"));
     }
     else{
+#ifdef PRO_MINI_OLED_BOARD
+      lcd.draw1x2String(0,0, String(F("No Boot Disk    ")).c_str());
+#else      
       lcd.setCursor(0,0);
       lcd.print(F("No Boot Disk    "));
+#endif
     }
     LCDTopDelay = LCDDelay;
    }

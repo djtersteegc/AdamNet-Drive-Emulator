@@ -23,9 +23,14 @@ void VoltageRead(){                                                // Read the V
     else{
       lcd.print(F("Low"));
     } */
+#ifdef PRO_MINI_OLED_BOARD
+    lcd.draw1x2String(0,2, String(F("ADE Vcc = ")).c_str());
+    lcd.draw1x2String(10,2, String(ADEVolts).c_str());
+#else   
     lcd.setCursor(0,1);
     lcd.print(F("ADE Vcc = "));
-    lcd.print(ADEVolts);    
+    lcd.print(ADEVolts);
+#endif
     delay(2000);
   }
 }

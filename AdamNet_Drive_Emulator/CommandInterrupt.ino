@@ -15,7 +15,7 @@ void CommandInterrupt(){                                           // New byte o
       IncomingCommand >>= 1;               // Shift the bits over to the right. This means the first bit will end up at the far right
       _delay_us(15);                       // Wait one bit width
       __asm__("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
-      if ((PIND & _BV(PD2))== 0){          // Read AdamNetRx and see if it is high or low
+      if ((RX_PORT)== 0){          // Read AdamNetRx and see if it is high or low
         IncomingCommand |= 0x80;           // If LOW - bitwise OR with 10000000. Basically put a 1 at the left side.
       }
       else{
@@ -172,6 +172,6 @@ void CommandInterrupt(){                                           // New byte o
     }
  //if ((IncomingCommand != 0x41) && (IncomingCommand != 0xD2)){Serial.println(IncomingCommand,HEX);}
   }
-  //EIFR = bit (INTF1);                      // Clear flag for any interrupts on INT1 (Reset) that were triggered while in the ISR
-  EIFR = bit (INTF2);                      // Clear flag for any interrupts on INT2 that were triggered while in the ISR
+  //EIFR = bit (RESET_INT);                      // Clear flag for any interrupts on AdamNetReset that were triggered while in the ISR
+  EIFR = bit (RX_INT);                      // Clear flag for any interrupts on ADamNetRx that were triggered while in the ISR
 }

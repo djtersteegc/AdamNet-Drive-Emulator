@@ -102,48 +102,93 @@ void ConfigMode(){                                                 // Configurat
     }
     if (LCDRefresh == 1){
       lcd.clear();
+#ifdef PRO_MINI_OLED_BOARD
+    lcd.draw1x2String(0,0, String(F("Device Config")).c_str());
+    if (MenuItem == 0) lcd.draw1x2String(0,2, RootMenu[MenuItem].c_str()); //Handle the case of Exit
+#else      
       lcd.setCursor(0,0);
       lcd.print(F("Device Config"));
       lcd.setCursor(0,1);
       lcd.print(RootMenu[MenuItem]);
+#endif      
       if (MenuItem == 1){
         if(Device4 == true){
+#ifdef PRO_MINI_OLED_BOARD
+          lcd.draw1x2String(0,2, (RootMenu[MenuItem] + String(F("On"))).c_str());
+#else          
           lcd.print(F("On"));
+#endif
         }
         else{
+#ifdef PRO_MINI_OLED_BOARD
+          lcd.draw1x2String(0,2, (RootMenu[MenuItem] + String(F("Off"))).c_str());
+#else           
           lcd.print(F("Off"));
+#endif          
         }
       }
       else if (MenuItem == 2){
         if(Device5 == true){
+#ifdef PRO_MINI_OLED_BOARD
+          lcd.draw1x2String(0,2, (RootMenu[MenuItem] + String(F("On"))).c_str());
+#else          
           lcd.print(F("On"));
+#endif
         }
         else{
+#ifdef PRO_MINI_OLED_BOARD
+          lcd.draw1x2String(0,2, (RootMenu[MenuItem] + String(F("Off"))).c_str());
+#else           
           lcd.print(F("Off"));
+#endif          
         }
       }
       else if (MenuItem == 3){
         if(Device6 == true){
+#ifdef PRO_MINI_OLED_BOARD
+          lcd.draw1x2String(0,2, (RootMenu[MenuItem] + String(F("On"))).c_str());
+#else          
           lcd.print(F("On"));
+#endif
         }
         else{
+#ifdef PRO_MINI_OLED_BOARD
+          lcd.draw1x2String(0,2, (RootMenu[MenuItem] + String(F("Off"))).c_str());
+#else           
           lcd.print(F("Off"));
+#endif          
         }
       }
       else if (MenuItem == 4){
         if(Device7 == true){
+#ifdef PRO_MINI_OLED_BOARD
+          lcd.draw1x2String(0,2, (RootMenu[MenuItem] + String(F("On"))).c_str());
+#else          
           lcd.print(F("On"));
+#endif
         }
         else{
+#ifdef PRO_MINI_OLED_BOARD
+          lcd.draw1x2String(0,2, (RootMenu[MenuItem] + String(F("Off"))).c_str());
+#else           
           lcd.print(F("Off"));
+#endif          
         }
       }
       else if (MenuItem == 5){
         if(DebugMode == true){
+#ifdef PRO_MINI_OLED_BOARD
+          lcd.draw1x2String(0,2, (RootMenu[MenuItem] + String(F("On"))).c_str());
+#else          
           lcd.print(F("On"));
+#endif
         }
         else{
+#ifdef PRO_MINI_OLED_BOARD
+          lcd.draw1x2String(0,2, (RootMenu[MenuItem] + String(F("Off"))).c_str());
+#else           
           lcd.print(F("Off"));
+#endif          
         }
       }
       LCDRefresh = 0;

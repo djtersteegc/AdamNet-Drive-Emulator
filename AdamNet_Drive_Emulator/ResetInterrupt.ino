@@ -3,7 +3,7 @@ void ResetInterrupt(){                                             // Reset from
   if (!DisableNextReset){
     if ((millis() - TimetoByte > 200) && (ResetFlag == 0)){
       TimetoByte = millis();               // Set the time that the reset came in
-      while (((PIND & _BV(PD1)) == 0) && (resettimeout <= 10000)){ // Wait for PD1 to go HIGH, This gets out of the reset.
+      while (((RESET_PORT) == 0) && (resettimeout <= 10000)){ // Wait for AdamNetReset to go HIGH, This gets out of the reset.
         resettimeout++;
       }
       ResetFlag = 1;                       // Set the reset flag
@@ -16,5 +16,5 @@ void ResetInterrupt(){                                             // Reset from
     DisableNextReset=false;
   }
 
-  EIFR = bit (INTF1);                      // Clear flag for any interrupts on INT1 that were triggered while in the ISR
+  EIFR = bit (RESET_INT);                      // Clear flag for any interrupts on AdamNetReset that were triggered while in the ISR
 }

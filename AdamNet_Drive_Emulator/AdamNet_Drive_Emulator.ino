@@ -1,18 +1,26 @@
 #include <util/delay.h>
 #include <SPI.h>
 #include <EEPROM.h>
-#include <SdFat.h>
+#include <SdFat.h> //Does not work with 2.x versions, use 1.1.4
+
+#define PRO_MINI_OLED_BOARD //Uncomment this line to use the with https://github.com/djtersteegc/coleco-adam-ade-pro-embed-shield
+
+#ifdef PRO_MINI_OLED_BOARD
+#include <U8x8lib.h>
+#else
 #include <LiquidCrystal.h>
+#endif
+
 //============================================================================================================================================
 //==================================             AdamNet Drive Emulator (ADE)   v0.91                 ========================================
 //============================================================================================================================================
 //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓   Only modify the following variables   ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-const byte Version[3] =  {0,9,1};          // ADE Version Number
+const byte Version[3] =  {0,9,2};          // ADE Version Number
 const byte StatusLEDState = LOW;           // Initial state for the status LED's 
                                            // LOW = Normally off, on for activity   HIGH = Normally on, off for activity (ADE Lite = HIGH)
-const byte EnableAnalogButtons = true;     // For the 1602 Keypad Shield Buttons, leave this as 'true'.  (ADE Pro / ADE Lite = false)
+const byte EnableAnalogButtons = false;     // For the 1602 Keypad Shield Buttons, leave this as 'true'.  (ADE Pro / ADE Lite = false)
                                            // If you are using individual digital buttons set it to 'false'.
 const unsigned int StartupDelay = 0;       // Additional delay on startup in ms. 
                                            // This can help the Adam get to SmartWriter before the ADE finishes booting.
@@ -39,11 +47,32 @@ const byte RepeatKeyDelay = 180;           // How long to wait before repeating 
 String CurrentDirectory = "/";             // The initial directory for the LCD display and the SD commands.
 //↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 //↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+#ifdef PRO_MINI_OLED_BOARD
+const byte AdamNetRx = 3;                 // AdamNet Receive pin.(3 = INT5 = PE5). Do not change this. It is hard coded.
+#define RX_PORT PINE & _BV(PE5)
+const byte RX_INT = INTF5;
+const byte AdamNetTx = 19;                 // AdamNet Transmit pin. (19 = INT2 = PD2). Do not change this. It is hard coded.
+const byte TX_PORT = PD2;
+const byte AdamResetPin = 2;              // Pin for optional output to AdamNet reset line. (2 = INT4 = PE4). Do not change this. It is hard coded.
+#define RESET_PORT PINE & _BV(PE4)
+const byte RESET_INT = INTF4;
+//U8X8_SSD1306_128X32_UNIVISION_SW_I2C lcd(/* clock=D21*/ 21, /* data=D20*/ 20);  //Uses 103 bytes less of dynamic memory, but is slower to refresh
+U8X8_SSD1306_128X32_UNIVISION_HW_I2C lcd(/* clock=D21*/ 21, /* data=D20*/ 20);
+const int RightButtonPin = 35;             // Pin for optional Right digital button.
+const int UpButtonPin = 39;                // Pin for optional Up digital button.
+const int DownButtonPin = 33;              // Pin for optional Down digital button.
+const int LeftButtonPin = 41;              // Pin for optional Left digital button.
+const int SelectButtonPin = 43;            // Pin for optional Select digital button.
+const int SwapButtonPin = 37;              // Pin for optional Swap digital button
+#else
 const byte AdamNetRx = 19;                 // AdamNet Receive pin.(19 = INT2 = PD2). Do not change this. It is hard coded.
+#define RX_PORT PIND & _BV(PD2)
+const byte RX_INT = INTF2;
 const byte AdamNetTx = 21;                 // AdamNet Transmit pin. (21 = INT0 = PD0). Do not change this. It is hard coded.
+const byte TX_PORT = PD0;
 const byte AdamResetPin = 20;              // Pin for optional output to AdamNet reset line. (20 = INT1 = PD1). Do not change this. It is hard coded.
-const byte ChipSelect = 53;                // Chip select (CS) pin for the SD Card (53),Connect SD Card Shield: (MISO = 50, MOSI = 51, SCK = 52)
-                                           // If SD card shield has 3.3v regulator then connect 5v, else 3.3v. Don't forget the GND.
+#define RESET_PORT PIND & _BV(PD1)
+const byte RESET_INT = INTF1;
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);       // Pins that the LCD are on, Default is 1602 Keypad Shield, buttons are on A0
 const int RightButtonPin = 25;             // Pin for optional Right digital button.
 const int UpButtonPin = 23;                // Pin for optional Up digital button.
@@ -51,6 +80,9 @@ const int DownButtonPin = 24;              // Pin for optional Down digital butt
 const int LeftButtonPin = 26;              // Pin for optional Left digital button.
 const int SelectButtonPin = 22;            // Pin for optional Select digital button.
 const int SwapButtonPin = 42;              // Pin for optional Swap digital button
+#endif
+const byte ChipSelect = 53;                // Chip select (CS) pin for the SD Card (53),Connect SD Card Shield: (MISO = 50, MOSI = 51, SCK = 52)
+                                           // If SD card shield has 3.3v regulator then connect 5v, else 3.3v. Don't forget the GND.
 const byte Interleave = 5;                 // This is the Interleave used for the disk image file layout. Not sure if changing it will actually work.
 unsigned int CurrentLCDDelay = LCDScrollDelay;// The current LCD scroll delay
 byte Device4;                              // Enable for Device 4 - Eeprom Byte 4
@@ -84,6 +116,9 @@ unsigned int LCDScrollLocation = 0;        // Current location for scrolling the
 unsigned long LCDTopDelay = 1;             // Delay for changing the LCD Top Text
 unsigned long LCDBottomDelay = 1;          // Delay for changing the LCD Bottom Text
 String LCDBottomText = "";                 // Text for the LCD Bottom
+char LCDCommandTopText[17];                // Text from SDCommand handler that needs to be written to the LCD on next refresh
+char LCDCommandBottomText[17];             // Text from SDCommand handler that needs to be written to the LCD on next refresh
+bool LCDWriteCommandNeeded = false;        // Do we have text from SDCommand that needs to be written?
 byte BootDiskExists = 0;                   // Flag for Boot Disk
 byte BootDiskMounted = 0;                  // Flag for Mounted Boot Disk
 byte BootDiskEnabled = 0;                  // Flag to enable the boot disk
@@ -108,6 +143,17 @@ SdFat sd;                                  // Setup SD Card
 SdFile file;                               // Setup SD Card
 void setup(){
   Serial.begin(1000000);
+#ifdef PRO_MINI_OLED_BOARD
+  lcd.begin();
+  lcd.setFont(u8x8_font_pressstart2p_r);
+  lcd.clear();
+  lcd.draw1x2String(0,0, String(F("ADE      v")).c_str());
+  lcd.draw1x2String(10,0, String(Version[0]).c_str());
+  lcd.draw1x2String(11,0, ".");
+  lcd.draw1x2String(12,0, String(Version[1]).c_str());
+  lcd.draw1x2String(13,0, String(Version[2]).c_str());
+  lcd.draw1x2String(0,2, String(F("by: Sean Myers")).c_str());
+#else
   lcd.begin(16, 2);                        // Start the LCD screen
   lcd.clear();
   lcd.setCursor(0,0);
@@ -115,6 +161,7 @@ void setup(){
   lcd.print(String(Version[0]) + "." + String(Version[1]) + String(Version[2]));
   lcd.setCursor(0,1);  
   lcd.print(F("by: Sean Myers"));
+#endif
   delay(2000);
   delay(StartupDelay);
   Serial.print(F("Starting: ADE v"));
@@ -166,8 +213,8 @@ void setup(){
   pinMode(AdamNetTx, OUTPUT);              // Setup AdamNetTx to Ouput
   digitalWrite(AdamNetTx, HIGH);           // Set the AdamNetTx to High
   pinMode(AdamResetPin,INPUT_PULLUP);      // Set the Adam reset to input
-  EIFR = bit (INTF2);                      // Clear flag for interrupt 2 (AdamNet Receive)
-  EIFR = bit (INTF1);                      // Clear flag for interrupt 1 (AdamNet Reset)
+  EIFR = bit (RX_INT);                      // Clear flag for interrupt (AdamNet Receive)
+  EIFR = bit (RESET_INT);                      // Clear flag for interrupt (AdamNet Reset)
   attachInterrupt(digitalPinToInterrupt(AdamNetRx), CommandInterrupt, RISING);  // Setup the Receive Interrupt
   attachInterrupt(digitalPinToInterrupt(AdamResetPin), ResetInterrupt, FALLING);  // Setup the Reset Interrupt
 }
@@ -179,7 +226,7 @@ void loop(){
     LastCommandTime = millis();            // Reset the Last Command timer
     AdamNetIdle();                         // Wait for AdamNet to go Idle
     SaveBufferArrayFlag = 0;               // Reset the flag
-    EIFR = bit (INTF2);                    // Clear flag for interrupt 2 (AdamNet Receive)
+    EIFR = bit (RX_INT);                    // Clear flag for interrupt 2 (AdamNet Receive)
     interrupts();                          // Enable Interrupts
     digitalWrite(StatusLed[WantedDevice-4], !digitalRead(StatusLed[WantedDevice-4]));// Turn off the Status LED
   }
@@ -190,7 +237,7 @@ void loop(){
     LastCommandTime = millis();            // Reset the Last Command timer
     AdamNetIdle();                         // Wait for AdamNet to go Idle
     LoadBufferArrayFlag = 0;               // Reset the flag
-    EIFR = bit (INTF2);                    // Clear flag for interrupt 2 (AdamNet Receive)
+    EIFR = bit (RX_INT);                    // Clear flag for interrupt 2 (AdamNet Receive)
     interrupts();                          // Enable Interrupts
     digitalWrite(StatusLed[WantedDevice-4], !digitalRead(StatusLed[WantedDevice-4]));;// Turn off the Status LED
   }
@@ -199,7 +246,7 @@ void loop(){
     LastCommandTime = millis();            // Reset the Last Command timer
     AdamNetIdle();                         // Wait for AdamNet to go Idle
     ResetFlag = 0;                         // Reset the flag
-    EIFR = bit (INTF1);                    // Clear flag for any interrupts on INT1 that were triggered while in the ISR
+    EIFR = bit (RESET_INT);                    // Clear flag for any interrupts on AdamNetReset that were triggered while in the ISR
   }
   if ((millis() - LastCommandTime) >= 500){ //Has it been at least 500 ms since the drive processed a command?
     ProcessKeys();                         // Has the keypress delay passed and is there a keypress?
